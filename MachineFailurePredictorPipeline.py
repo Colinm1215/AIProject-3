@@ -18,9 +18,12 @@ from sklearn.exceptions import ConvergenceWarning
 
 @ignore_warnings(category=ConvergenceWarning)
 
+#Runtime ~ 3-4 Minutes
+
 def main():
     #Adjust pandas options
     pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows',None)
     pd.set_option('display.max_colwidth', None)
     pd.set_option('expand_frame_repr', False)
 
@@ -34,6 +37,8 @@ def main():
     failure_0_under = failure_0.sample(failure_count_1, random_state=0)
     test_under = pd.concat([failure_0_under,failure_1], axis=0)
     print(test_under)
+    print(test_under.shape)
+    print()
 
     #Preprocess data
     #Drop columns not necessary for ML models
@@ -118,49 +123,51 @@ def main():
     params = [gs_mlp.best_params_, gs_svc.best_params_, gs_bc.best_params_, gs_ab.best_params_, gs_rfc.best_params_]
     training_scores = [training_mlp_f1_score, training_svc_f1_score, training_bc_f1_score, training_ab_f1_score, training_rfc_f1_score]
 
-    #Create DataFrame to print table
+    #Create Training DataFrame to print table
     d = {'ML Trained Model':ml_model, 'Its Best Set of Parameter Values': params, 'Its F1-score on the 5-fold Cross Validation on Training Data (70%)':training_scores}
     TrainingTableData = pd.DataFrame(data = d)
     print(TrainingTableData)
     print()
 
-    max_train = TrainingTableData[TrainingTableData['Its F1-score on the 5-fold Cross Validation on Training Data (70%)'] == TrainingTableData['Its F1-score on the 5-fold Cross Validation on Training Data (70%)'].max()]['ML Trained Model']
-    # print("The ML model that produced the best F1-score on the training data is: " + str(max.iloc[0][0]))
-    print(str(max_train))
+    #Print best classifier for Training
+    max_train = TrainingTableData[TrainingTableData['Its F1-score on the 5-fold Cross Validation on Training Data (70%)'] == TrainingTableData['Its F1-score on the 5-fold Cross Validation on Training Data (70%)'].max()]
+    print("The ML model that produced the best F1-score on the training data is: " + max_train.iloc[0]['ML Trained Model'])
+    print()
 #-----------------------------------------------------------------------------------------------------------------------
 
 #Testing----------------------------------------------------------------------------------------------------------------
-    # Artificial Neural Network
+    #Artificial Neural Network
     y_pred_mlp_test = model_gs_mlp.predict(X_test)
     testing_mlp_f1_score = f1_score(y_test, y_pred_mlp_test)
 
-    # Support Vector Machine
+    #Support Vector Machine
     y_pred_svc_test = model_gs_svc.predict(X_test)
     testing_svc_f1_score = f1_score(y_test, y_pred_svc_test)
 
-    # Bagging Classifier
+    #Bagging Classifier
     y_pred_bc_test = model_gs_bc.predict(X_test)
     testing_bc_f1_score = f1_score(y_test, y_pred_bc_test)
 
-    # AdaBoost
+    #AdaBoost
     y_pred_ab_test = model_gs_ab.predict(X_test)
     testing_ab_f1_score = f1_score(y_test, y_pred_ab_test)
 
-    # Random Forest
+    #Random Forest
     y_pred_rfc_test = model_gs_rfc.predict(X_test)
     testing_rfc_f1_score = f1_score(y_test, y_pred_rfc_test)
 
     testing_scores = [testing_mlp_f1_score, testing_svc_f1_score, testing_bc_f1_score, testing_ab_f1_score, testing_rfc_f1_score]
 
+    #Create Testing DataFrame to print table
     TestingTableData = TrainingTableData
     TestingTableData.drop(["Its F1-score on the 5-fold Cross Validation on Training Data (70%)"], axis=1, inplace=True)
     TestingTableData.insert(2,"Its F1-score on Testing Data (30%)",testing_scores,True)
     print(TestingTableData)
     print()
 
-    max_test = TestingTableData[TestingTableData["Its F1-score on Testing Data (30%)"] == TestingTableData["Its F1-score on Testing Data (30%)"].max()]['ML Trained Model']
-    # print("The ML model that produced the best F1-score on the training data is: " + str(max.iloc[0][0]))
-    print(str(max_test))
+    #Print best classifier for Testing
+    max_test = TestingTableData[TestingTableData["Its F1-score on Testing Data (30%)"] == TestingTableData["Its F1-score on Testing Data (30%)"].max()]
+    print("The ML model that produced the best F1-score on the testing data is: " + max_test.iloc[0]['ML Trained Model'])
 #-----------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
