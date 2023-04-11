@@ -55,6 +55,8 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
 #Training---------------------------------------------------------------------------------------------------------------
+#Grid Search to find optimal parameters for each ML classifier and apply to the training set.
+
     #Artificial Neural Network
     mlp_parameters = {
         'hidden_layer_sizes': [(10,), (50,), (100,)],
@@ -81,7 +83,7 @@ def main():
 
     #Bagging Classifier
     bc_parameters = {
-        'n_estimators': [1, 10, 100],
+        'n_estimators': [5, 10, 15, 20],
         'max_samples': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
         'max_features': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.92, 0.95, 1.0]
     }
@@ -94,7 +96,7 @@ def main():
 
     #AdaBoost
     ab_parameters = {
-        'n_estimators': [10, 50, 100],
+        'n_estimators': [50, 70, 100],
         'learning_rate': [0.01, 0.1, 1.0]
     }
     gs_ab = GridSearchCV(AdaBoostClassifier(random_state=4), ab_parameters, scoring='f1', cv=5)
@@ -106,7 +108,7 @@ def main():
 
     #Random Forest
     rfc_parameters = {
-        'n_estimators': [100, 200, 300],
+        'n_estimators': [10, 50, 100],
         'max_samples': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
         'max_depth': [2, 4, 6, 8, 10],
         'criterion': ['gini', 'entropy'],
@@ -136,6 +138,8 @@ def main():
 #-----------------------------------------------------------------------------------------------------------------------
 
 #Testing----------------------------------------------------------------------------------------------------------------
+#Use optimal parameters for each ML model found above and apply to the test set.
+
     #Artificial Neural Network
     y_pred_mlp_test = model_gs_mlp.predict(X_test)
     testing_mlp_f1_score = f1_score(y_test, y_pred_mlp_test)
